@@ -5,57 +5,7 @@ import (
 	"active/config"
 	"fmt"
 	"math"
-	"time"
 )
-
-func minCostGifts(n int, expectValue int) (int, []int) {
-	gifts := []common.GiftType{common.Gift1, common.Gift2, common.Gift3, common.Gift4, common.Gift5}
-	maxValue := 0
-	for _, gift := range gifts {
-		maxValue += gift.Value() * n
-	}
-
-	// dp[i]表示达到价值i所需的最小消耗
-	dp := make([]int, maxValue+1)
-	for i := range dp {
-		dp[i] = math.MaxInt32
-	}
-	dp[0] = 0
-
-	// 记录每种礼物的数量
-	counts := make([][]int, maxValue+1)
-	for i := range counts {
-		counts[i] = make([]int, len(gifts))
-	}
-
-	for _, gift := range gifts {
-		value := gift.Value()
-		cost := gift.Cost()
-		for j := value; j <= maxValue; j++ {
-			for k := 1; k <= n; k++ {
-				if j >= k*value {
-					if dp[j] > dp[j-k*value]+k*cost {
-						dp[j] = dp[j-k*value] + k*cost
-						copy(counts[j], counts[j-k*value])
-						counts[j][gift] += k
-					}
-				}
-			}
-		}
-	}
-
-	// 找到最小消耗值
-	minCost := math.MaxInt32
-	var resultCounts []int
-	for i := expectValue; i <= maxValue; i++ {
-		if dp[i] < minCost {
-			minCost = dp[i]
-			resultCounts = counts[i]
-		}
-	}
-
-	return minCost, resultCounts
-}
 
 type Gift struct {
 	value int
@@ -84,6 +34,11 @@ func splitNumber(n int) []int {
 }
 
 func minCost(n, expectValue int) {
+	if expectValue <= 0 {
+		fmt.Printf("礼包搭配：无需购买礼包")
+		return
+	}
+
 	gifts := []Gift{
 		{common.Gift1.Value(), common.Gift1.Cost()},
 		{common.Gift2.Value(), common.Gift2.Cost()},
@@ -128,7 +83,7 @@ func minCost(n, expectValue int) {
 		fmt.Println("无法达到期望价值")
 	} else {
 		fmt.Printf("最小消耗值cost: %d\n", dp[expectValue].cost)
-		fmt.Println("礼物搭配：")
+		fmt.Println("礼包搭配：")
 		for i, count := range dp[expectValue].counts {
 			fmt.Printf("%s 出现 %d 次\n", common.GiftType(i).Name(), count)
 		}
@@ -148,6 +103,5 @@ func GetGift(conf config.Config) {
 	var giftMaxCount = conf.ExpectDays                                   // 每种礼包出现的最多次数
 	var leftBottleSum = needBottleSum - freeBottleSum - conf.ExtraBottle // 需要用礼包弥补的瓶子数
 	fmt.Printf("每种礼包最多出现次数：%d，需要弥补的瓶子数：%d\n", giftMaxCount, leftBottleSum)
-	time.Sleep(10 * time.Second)
 	minCost(giftMaxCount, leftBottleSum)
 }
