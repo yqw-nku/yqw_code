@@ -64,9 +64,32 @@ func LoadConfig() error {
 		}
 	case "gift":
 		// 选择礼包搭配
-		if err := survey.AskOne(giftPrompt, &conf.GiftArray, survey.WithValidator(survey.Required)); err != nil {
+		var gifts []string
+		if err := survey.AskOne(giftPrompt, &gifts, survey.WithValidator(survey.Required)); err != nil {
 			fmt.Printf("解析失败，%s", err.Error())
 			return err
+		}
+		for _, gift := range gifts {
+			if gift == common.Gift1.Name() {
+				conf.GiftArray = append(conf.GiftArray, common.Gift1)
+				continue
+			}
+			if gift == common.Gift2.Name() {
+				conf.GiftArray = append(conf.GiftArray, common.Gift2)
+				continue
+			}
+			if gift == common.Gift3.Name() {
+				conf.GiftArray = append(conf.GiftArray, common.Gift3)
+				continue
+			}
+			if gift == common.Gift4.Name() {
+				conf.GiftArray = append(conf.GiftArray, common.Gift4)
+				continue
+			}
+			if gift == common.Gift5.Name() {
+				conf.GiftArray = append(conf.GiftArray, common.Gift5)
+				continue
+			}
 		}
 	default:
 		return fmt.Errorf("模式错误")
